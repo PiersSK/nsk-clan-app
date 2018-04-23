@@ -16,7 +16,7 @@ import AccountCard from "../components/accountCard.js"
 //get styles
 import styles from "../styles.js"
 
-export default class HomeScreen extends React.Component {
+export default class RosterScreen extends React.Component {
 
     constructor(props){
         super(props);
@@ -65,7 +65,7 @@ export default class HomeScreen extends React.Component {
         })
     
     }
-    
+
     render(){
 
         if(this.state.isLoading){
