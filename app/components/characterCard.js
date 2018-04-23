@@ -14,7 +14,7 @@ export default class CharacterCard extends React.Component {
             "0": "Titan",
             "1": "Hunter",
             "2": "Warlock",
-        }, hoursPlayed = ((this.props.character.minutesPlayedTotal-this.props.character.minutesPlayedTotal%60)/60) + "h" + this.props.character.minutesPlayedTotal%60 + "m"
+        }, hoursPlayed = ((this.props.character.minutesPlayedTotal-this.props.character.minutesPlayedTotal%60)/60) + "h " + this.props.character.minutesPlayedTotal%60 + "m"
 
         return (
             <View style={[styles.characterCard, styles.infoCard]}>
