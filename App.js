@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import RosterScreen from "./app/views/roster.js"
 import CharacterScreen from "./app/views/characters.js"
 import CharacterDetailsScreen from "./app/views/characterDetails.js"
+import LeaderboardScreen from "./app/views/leaderboards";
 
 
 const RosterStack = StackNavigator(
@@ -37,6 +38,13 @@ export default DrawerNavigator(
       navigationOptions: {
         drawerLabel: "Clan Roster",
         drawerIcon: () => (<Icon name={"users"} size={20} color={"red"} />)
+      }
+    },
+    Leaderboards: { 
+      screen: LeaderboardScreen,
+      navigationOptions: {
+        drawerLabel: "Leaderboards",
+        drawerIcon: () => (<Icon name={"list"} size={20} color={"blue"} />)
       }
     },
   },
