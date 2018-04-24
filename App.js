@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 // get views
 import RosterScreen from "./app/views/roster.js"
 import CharacterScreen from "./app/views/characters.js"
+import CharacterDetailsScreen from "./app/views/characterDetails.js"
 
 
 const RosterStack = StackNavigator(
@@ -19,6 +20,9 @@ const RosterStack = StackNavigator(
     Characters: {
       screen: CharacterScreen,
     },
+    CharacterDetails: {
+      screen: CharacterDetailsScreen,
+    }
   },
   {
     initialRouteName: "Roster"

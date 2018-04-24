@@ -13,6 +13,7 @@ import { Navigation } from 'react-navigation';
 //get components
 import CharacterCard from "../components/characterCard.js"
 import Stats from "../components/stats.js"
+import PGCR from "../components/activity.js"
 
 //get styles
 import styles from "../styles.js"
@@ -67,9 +68,15 @@ export default class CharacterScreen extends React.Component {
         };
     
         const { navigate } = this.props.navigation;
+        const classRef = {
+            "0": "Titan",
+            "1": "Hunter",
+            "2": "Warlock",
+        };
     
         let membershipId = this.props.navigation.state.params.membershipId;
         let characters = this.state.characters;
+
         let characterList = []
         for(character in characters) { //object to array for simplicity 
             characterList.push(characters[character])
@@ -78,7 +85,11 @@ export default class CharacterScreen extends React.Component {
         return characterList.map(function(character, i){ //create character cards for each of a memberes created characters
             return(
                 <TouchableHighlight
-                    onPress={() => navigate("CharacterDetails", {membershipId: membershipId, characterId: character.characterId})}
+                    onPress={() => navigate("CharacterDetails", {
+                        membershipId: membershipId,
+                        character: character,
+                        class: classRef[character.classType]
+                    })}
                     underlayColor={"transparent"}
                     key={i} >
                     <CharacterCard character={character} key={i}/>
@@ -106,7 +117,8 @@ export default class CharacterScreen extends React.Component {
                     <ScrollView style={{paddingTop: 5}}>
                         {this.makeCharacterCards()}
                         {/* <Text>{JSON.stringify(this.state.characters, null, 2)}</Text> */}
-                        <Stats membershipId={this.props.navigation.state.params.membershipId}/>
+                        <Stats membershipId={this.props.navigation.state.params.membershipId} characterId={false}/>
+                        {/* <PGCR membershipId={this.props.navigation.state.params.membershipId} characterId={"2305843009262356386"}/>  */}
                     </ScrollView>
                 </ImageBackground>
             </View>

@@ -28,8 +28,20 @@ export default class Stats extends React.Component {
         })
         .then((response) => response.json())
         .then((responseJson) => {
+            let characterStats = null;
+
+            if(this.props.characterId) {
+                for(character in responseJson["Response"]["characters"]){
+                    if(responseJson["Response"]["characters"][character]["characterId"] == this.props.characterId) {
+                        characterStats = responseJson["Response"]["characters"][character]['results'];
+                        break;
+                    }
+                }
+            }
+
             this.setState({
                 mergedStats: responseJson["Response"]["mergedAllCharacters"]["results"],
+                characterStats: characterStats,
                 isLoading: false
             })
         })
@@ -39,11 +51,11 @@ export default class Stats extends React.Component {
     }
 
     generateStatsDisplay() {
-        
-        
-        let stats = this.state.mergedStats
-        let pveStats = stats["allPvE"]["allTime"]
-        let pvpStats = stats["allPvP"]["allTime"]
+
+        let stats = this.props.characterId ? this.state.characterStats : this.state.mergedStats;
+
+        let pveStats = stats["allPvE"]["allTime"];
+        let pvpStats = stats["allPvP"]["allTime"];
         
         return ( 
             <ScrollView>
