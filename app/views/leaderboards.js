@@ -20,7 +20,8 @@ export default class LeaderboardScreen extends React.Component {
         super(props);
         this.state = {
             isLoading: true,
-            memberKDRs: {}
+            memberKDRs: [],
+            errors: 0
         }
         this.getClanMembers();
     }
@@ -39,15 +40,16 @@ export default class LeaderboardScreen extends React.Component {
                 memberIdList.push(responseJson['Response']['results'][member]["destinyUserInfo"]["membershipId"]);
             }
 
+            this.setState({
+                memberJson: responseJson['Response']['results'],
+                memberIdList: memberIdList,
+                isLoading: false
+            })
+
             for(member in memberIdList) {
                 this.getKDR(memberIdList[member]);
             }
             
-        })
-        .then(() => {
-            this.setState({
-                isLoading: false
-            })
         })
         .catch((error) =>{
             console.error(error);
@@ -63,18 +65,51 @@ export default class LeaderboardScreen extends React.Component {
         })
         .then((response) => response.json())
         .then((responseJson) => {
-            let memberKDR = responseJson["Response"]["mergedAllCharacters"]["results"]["allPvP"]["killsDeathsRatio"]["basic"]["value"];
-            this.setState(prevState => ({
-                memberKDRs: {
-                    ...prevState.memberKDRs,
-                    membershipId: memberKDR
-                }
-            }))
+            let numberOfMembers = this.state.memberIdList.length, memberKDR;
+
+            if(responseJson['ErrorCode'] == 1) {
+                memberKDR = responseJson["Response"]["mergedAllCharacters"]["results"]["allPvP"]["allTime"]["killsDeathsRatio"]["basic"]["value"];
+
+                this.setState(prevState => ({
+                    memberKDRs: {
+                        ...prevState.memberKDRs,
+                        [membershipId]: memberKDR
+                    }
+                }))
+            }
         })
         .catch((error) =>{
             console.error(error);
         });
     }
+
+    createLeaderboard() {
+        let leaderBoard = [], playerName, memberInfoList = this.state.memberJson;
+        for (var member in this.state.memberKDRs) {
+            leaderBoard.push([member, this.state.memberKDRs[member]]);
+        }
+
+        leaderBoard.sort(function(a, b) {
+            return b[1] - a[1];
+        });
+        
+        return leaderBoard.map(function(member, i){ 
+            for(memberInfo in memberInfoList){
+                if(memberInfoList[memberInfo]['destinyUserInfo']["membershipId"] == member[0]) {
+                    playerName = memberInfoList[memberInfo]['destinyUserInfo']['displayName'];
+                    break;
+                }
+            }
+            return(
+                <View style={{backgroundColor:"gray", flexDirection: "row", margin: 5, padding: 5}}>
+                    <Text style={{color: "white", fontWeight: "bold"}}>{i+1} </Text>
+                    <Text style={{fontWeight: "bold"}}>{playerName} </Text>
+                    <Text>{Number(member[1]).toFixed(2)}</Text>
+                </View>
+            );
+        })
+    }
+
     render(){
 
         if(this.state.isLoading){
@@ -92,7 +127,7 @@ export default class LeaderboardScreen extends React.Component {
                 style={{width: "100%", height: "100%"}} 
                 >
                     <ScrollView style={{paddingTop: 5}}>
-                        <Text>{JSON.stringify(this.state.memberKDRs, null, 2)}</Text>
+                        {this.createLeaderboard()}
                     </ScrollView>
                 </ImageBackground>
             </View>
