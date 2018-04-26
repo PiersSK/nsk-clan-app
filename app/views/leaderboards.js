@@ -7,12 +7,14 @@ import {
     Image,
     TouchableHighlight,
     ImageBackground,
-    StyleSheet } from 'react-native';
+    StyleSheet,
+    Picker } from 'react-native';
 import { Navigation } from 'react-navigation';
 
 
 //get styles
 import styles from "../styles.js"
+import metricRef from "../references/statTitles.js"
 
 export default class LeaderboardScreen extends React.Component {
 
@@ -21,7 +23,9 @@ export default class LeaderboardScreen extends React.Component {
         this.state = {
             isLoading: true,
             memberKDRs: [],
-            errors: 0
+            errors: 0,
+            metric: "killsDeathsRatio",
+            type: "allPvP"
         }
         this.getClanMembers();
     }
@@ -68,7 +72,7 @@ export default class LeaderboardScreen extends React.Component {
             let numberOfMembers = this.state.memberIdList.length, memberKDR;
 
             if(responseJson['ErrorCode'] == 1) {
-                memberKDR = responseJson["Response"]["mergedAllCharacters"]["results"]["allPvP"]["allTime"]["killsDeathsRatio"]["basic"]["value"];
+                memberKDR = responseJson["Response"]["mergedAllCharacters"]["results"][this.state.type]["allTime"][this.state.metric]["basic"]["value"];
 
                 this.setState(prevState => ({
                     memberKDRs: {
@@ -101,11 +105,24 @@ export default class LeaderboardScreen extends React.Component {
                 }
             }
             return(
-                <View style={{backgroundColor:"gray", flexDirection: "row", margin: 5, padding: 5}}>
-                    <Text style={{color: "white", fontWeight: "bold"}}>{i+1} </Text>
-                    <Text style={{fontWeight: "bold"}}>{playerName} </Text>
-                    <Text>{Number(member[1]).toFixed(2)}</Text>
+                <View style={[styles.characterCard, styles.infoCard, {margin: 5, padding: 10}]} key={i}>
+                    <View style={{flex: 1}}>
+                        <Text style={{color: "white", fontWeight: "bold", fontSize:20, textAlign: "center"}}>{i+1} </Text>
+                    </View>
+                    <View style={{flex: 9, flexDirection: "row", justifyContent: "space-between"}}>
+                        <Text style={{fontWeight: "bold", fontSize: 18, color: "#efb20b"}}>{playerName} </Text>
+                        <Text style={{color: "white"}}>{Number(member[1]).toFixed(2)}</Text>
+                    </View>
                 </View>
+            );
+        })
+    }
+
+    createPickerItems() {
+        let type = this.state.type
+        return Object.keys(metricRef[type]).map(function(metricValue, i){
+            return(
+                <Picker.Item label={metricRef[type][metricValue]} value={metricValue} key={i}/>                
             );
         })
     }
@@ -126,6 +143,28 @@ export default class LeaderboardScreen extends React.Component {
                 source={{uri: 'https://alphalupi.bungie.net/images/background.jpg'}} //a pretty destiny map background image
                 style={{width: "100%", height: "100%"}} 
                 >
+                    <View style={{padding:5, borderBottomColor: "#efb20b", borderBottomWidth: 2, backgroundColor: "#300b1c38" }}>
+                        <Text style={{fontSize: 48, fontWeight: "bold", color: "#efb20b"}}>Leaderboards</Text>
+                        <Picker
+                            selectedValue={this.state.metric}
+                            style={{ height: 50, width: "100%", color: "white"}}
+                            onValueChange={(value) => {
+                                this.setState({metric: value})
+                                this.getClanMembers();
+                            }}>
+                            {this.createPickerItems()}
+                        </Picker>
+                        <Picker
+                            selectedValue={this.state.type}
+                            style={{ height: 50, width: "100%", color: "white"}}
+                            onValueChange={(value) => {
+                                this.setState({type: value})
+                                this.getClanMembers();
+                            }}>
+                            <Picker.Item label={"PvP"} value={"allPvP"} key={0}/>
+                            <Picker.Item label={"PvE"} value={"allPvE"} key={1}/>
+                        </Picker>
+                    </View>
                     <ScrollView style={{paddingTop: 5}}>
                         {this.createLeaderboard()}
                     </ScrollView>
