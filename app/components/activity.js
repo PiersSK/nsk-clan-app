@@ -77,8 +77,6 @@ export default class PGCR extends React.Component {
 
     makePGCRDisplay() {
         let stats = this.state.activityStats;
-        
-        
 
         return (
             <View>

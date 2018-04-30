@@ -27,20 +27,11 @@ export default class CharacterDetailsScreen extends React.Component {
     
     static navigationOptions = ({ navigation }) => ({ //set the nav bar that opens
         title: `${navigation.state.params.class}`,
-        headerTitleStyle : {textAlign: 'center',alignSelf:'center',color:"rgb(244, 220, 66)"},
-        headerStyle:{
-            backgroundColor:'gray',
-        },
+        headerStyle: {backgroundColor: '#0b1c38'},
+        headerTintColor: 'white'
     });
     
     render() {
-        // if(this.state.isLoading){
-        //     return(
-        //         <View style={{flex: 1, padding: 23}}>
-        //         <ActivityIndicator/>
-        //         </View>
-        //     )
-        // }
     
         return(
             <View style={[StyleSheet.absoluteFill]}>

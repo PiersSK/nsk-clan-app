@@ -7,7 +7,8 @@ import {
     Image,
     TouchableHighlight,
     ImageBackground,
-    StyleSheet } from 'react-native';
+    StyleSheet, 
+    StatusBar} from 'react-native';
 import { Navigation } from 'react-navigation';
 
 //get components
@@ -70,18 +71,25 @@ export default class RosterScreen extends React.Component {
 
         if(this.state.isLoading){
             return(
-            <View style={{flex: 1, padding: 23}}>
-                <ActivityIndicator/>
-            </View>
+                <ImageBackground
+                    source={{uri: 'https://alphalupi.bungie.net/images/background.jpg'}}   
+                    style={[StyleSheet.absoluteFill, {width: "100%", height: "100%", padding: 50}]} 
+                    >
+                    <ActivityIndicator/>
+                </ImageBackground>
             )
         }
 
         return(
-            <View style={[StyleSheet.absoluteFill, {paddingTop:23}]}>
+            <View style={[StyleSheet.absoluteFill]}>
                 <ImageBackground
                 source={{uri: 'https://alphalupi.bungie.net/images/background.jpg'}} //a pretty destiny map background image
                 style={{width: "100%", height: "100%"}} 
                 >
+                    {/* <StatusBar
+                        backgroundColor="blue"
+                        barStyle="light-content"
+                    /> */}
                     <ScrollView style={{paddingTop: 5}}>
                         {this.makeAccountCards()}
                     </ScrollView>

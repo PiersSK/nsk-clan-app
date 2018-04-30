@@ -28,10 +28,8 @@ export default class CharacterScreen extends React.Component {
     
     static navigationOptions = ({ navigation }) => ({ //set the nav bar that opens
         title: `${navigation.state.params.playerName}`,
-        headerTitleStyle : {textAlign: 'center',alignSelf:'center',color:"rgb(244, 220, 66)"},
-        headerStyle:{
-            backgroundColor:'gray',
-        },
+        headerStyle: {backgroundColor: '#0b1c38'},
+        headerTintColor: 'white'
     });
     
     getCharacterIds() { //get a list of the members characters
@@ -45,7 +43,8 @@ export default class CharacterScreen extends React.Component {
         .then((responseJson) => {
             if(responseJson['ErrorCode'] != "1"){ //if call was successful but response was error
                 this.setState({
-                    error: JSON.stringify(responseJson, null, 2)
+                    error: JSON.stringify(responseJson, null, 2),
+                    isLoading: false
                 })
             } else {
                 this.setState({
@@ -63,7 +62,7 @@ export default class CharacterScreen extends React.Component {
     
         if(this.state.error){ //just print error JSON if no characters were returned
             return(
-                <Text style={{color:"red"}}>{this.state.error}</Text>
+                <Text style={{color:"red", padding:10}}>{this.state.error}</Text>
             )
         };
     
@@ -96,32 +95,38 @@ export default class CharacterScreen extends React.Component {
                 </TouchableHighlight>
             );
         })
-        
+    }
+
+    makeStats() { // stops it from trying to load stats if no characters returned
+        if(!this.state.error){ 
+            return(
+                <Stats membershipId={this.props.navigation.state.params.membershipId} characterId={false}/>
+            )
+        };
     }
     
     render() {
         if(this.state.isLoading){
             return(
-                <View style={{flex: 1, padding: 23}}>
-                <ActivityIndicator/>
-                </View>
+                <ImageBackground
+                    source={{uri: 'https://alphalupi.bungie.net/images/background.jpg'}}   
+                    style={[StyleSheet.absoluteFill, {width: "100%", height: "100%", padding: 50}]} 
+                    >
+                    <ActivityIndicator/>
+                </ImageBackground>
             )
         }
     
         return(
-            <View style={[StyleSheet.absoluteFill]}>
-                <ImageBackground
-                    source={{uri: 'https://alphalupi.bungie.net/images/background.jpg'}}   
-                    style={{width: "100%", height: "100%"}} 
-                    >
-                    <ScrollView style={{paddingTop: 5}}>
-                        {this.makeCharacterCards()}
-                        {/* <Text>{JSON.stringify(this.state.characters, null, 2)}</Text> */}
-                        <Stats membershipId={this.props.navigation.state.params.membershipId} characterId={false}/>
-                        {/* <PGCR membershipId={this.props.navigation.state.params.membershipId} characterId={"2305843009262356386"}/>  */}
-                    </ScrollView>
-                </ImageBackground>
-            </View>
+            <ImageBackground
+                source={{uri: 'https://alphalupi.bungie.net/images/background.jpg'}}   
+                style={[StyleSheet.absoluteFill, {width: "100%", height: "100%"}]} 
+                >
+                <ScrollView style={{paddingTop: 5}}>
+                    {this.makeCharacterCards()}
+                    {this.makeStats()}
+                </ScrollView>
+            </ImageBackground>
         )
     }
 }

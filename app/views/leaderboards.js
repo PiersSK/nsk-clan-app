@@ -22,10 +22,11 @@ export default class LeaderboardScreen extends React.Component {
         super(props);
         this.state = {
             isLoading: true,
+            leaderBoardLoading: true,
             memberKDRs: [],
-            errors: 0,
+            check: [],
             metric: "killsDeathsRatio",
-            type: "allPvP"
+            type: "allPvP",
         }
         this.getClanMembers();
     }
@@ -46,8 +47,10 @@ export default class LeaderboardScreen extends React.Component {
 
             this.setState({
                 memberJson: responseJson['Response']['results'],
-                memberIdList: memberIdList,
-                isLoading: false
+                numberOfMembers: memberIdList.length,
+                memberKDRs: [],
+                isLoading: false,
+                leaderBoardLoading: true,
             })
 
             for(member in memberIdList) {
@@ -69,17 +72,32 @@ export default class LeaderboardScreen extends React.Component {
         })
         .then((response) => response.json())
         .then((responseJson) => {
-            let numberOfMembers = this.state.memberIdList.length, memberKDR;
+            let leaderBoardLoading = !((Object.keys(this.state.memberKDRs).length + 1) == this.state.numberOfMembers), memberKDR;
+            let check = this.state.check;
+            check.push(responseJson['ErrorCode'] + ", ");
 
             if(responseJson['ErrorCode'] == 1) {
                 memberKDR = responseJson["Response"]["mergedAllCharacters"]["results"][this.state.type]["allTime"][this.state.metric]["basic"]["value"];
+                if(this.state.metric == "secondsPlayed"){
+                    memberKDR = (memberKDR/3600).toFixed(2)
+                }
 
                 this.setState(prevState => ({
                     memberKDRs: {
                         ...prevState.memberKDRs,
                         [membershipId]: memberKDR
-                    }
+                    },
+                    leaderBoardLoading: leaderBoardLoading,
+                    check: check
                 }))
+            } else {
+                let numberOfMembers = this.state.numberOfMembers - 1;
+
+                this.setState({
+                    numberOfMembers: numberOfMembers,
+                    leaderBoardLoading: leaderBoardLoading,
+                    check: check
+                })
             }
         })
         .catch((error) =>{
@@ -96,6 +114,17 @@ export default class LeaderboardScreen extends React.Component {
         leaderBoard.sort(function(a, b) {
             return b[1] - a[1];
         });
+
+        if(this.state.leaderBoardLoading){
+            return (
+                <View style={{flex: 1, padding: 50}}>
+                    <ActivityIndicator/>
+                    <Text style={{color:"white",fontWeight:"bold",textAlign:"center"}}>
+                        Getting player data... {Object.keys(this.state.memberKDRs).length}/{this.state.numberOfMembers}
+                    </Text>
+                </View>
+            )
+        }
         
         return leaderBoard.map(function(member, i){ 
             for(memberInfo in memberInfoList){
@@ -131,39 +160,44 @@ export default class LeaderboardScreen extends React.Component {
 
         if(this.state.isLoading){
             return(
-            <View style={{flex: 1, padding: 23}}>
-                <ActivityIndicator/>
-            </View>
+                <ImageBackground
+                    source={{uri: 'https://alphalupi.bungie.net/images/background.jpg'}}   
+                    style={[StyleSheet.absoluteFill, {width: "100%", height: "100%", padding: 50}]} 
+                    >
+                    <ActivityIndicator/>
+                </ImageBackground>
             )
         }
 
         return(
-            <View style={[StyleSheet.absoluteFill, {paddingTop:23}]}>
+            <View style={[StyleSheet.absoluteFill]}>
                 <ImageBackground
                 source={{uri: 'https://alphalupi.bungie.net/images/background.jpg'}} //a pretty destiny map background image
                 style={{width: "100%", height: "100%"}} 
                 >
-                    <View style={{padding:5, borderBottomColor: "#efb20b", borderBottomWidth: 2, backgroundColor: "#300b1c38" }}>
-                        <Text style={{fontSize: 48, fontWeight: "bold", color: "#efb20b"}}>Leaderboards</Text>
-                        <Picker
-                            selectedValue={this.state.metric}
-                            style={{ height: 50, width: "100%", color: "white"}}
-                            onValueChange={(value) => {
-                                this.setState({metric: value})
-                                this.getClanMembers();
-                            }}>
-                            {this.createPickerItems()}
-                        </Picker>
-                        <Picker
-                            selectedValue={this.state.type}
-                            style={{ height: 50, width: "100%", color: "white"}}
-                            onValueChange={(value) => {
-                                this.setState({type: value})
-                                this.getClanMembers();
-                            }}>
-                            <Picker.Item label={"PvP"} value={"allPvP"} key={0}/>
-                            <Picker.Item label={"PvE"} value={"allPvE"} key={1}/>
-                        </Picker>
+                    <View style={{paddingLeft: 10, paddingRight: 10, backgroundColor: "#050f21" }}>
+                        <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                            <Picker
+                                selectedValue={this.state.type}
+                                style={{ height: 50, width: 100, color: "white"}}
+                                onValueChange={(value) => {
+                                    this.setState({type: value})
+                                    this.getClanMembers();
+                                }}>
+                                <Picker.Item label={"PvP"} value={"allPvP"} key={0}/>
+                                <Picker.Item label={"PvE"} value={"allPvE"} key={1}/>
+                            </Picker>
+                            <Picker
+                                selectedValue={this.state.metric}
+                                style={{ height: 50, width: 250, color: "white"}}
+                                onValueChange={(value) => {
+                                    this.setState({metric: value})
+                                    this.getClanMembers();
+                                }}>
+                                {this.createPickerItems()}
+                            </Picker>
+                            
+                        </View>
                     </View>
                     <ScrollView style={{paddingTop: 5}}>
                         {this.createLeaderboard()}
